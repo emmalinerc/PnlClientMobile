@@ -26,7 +26,7 @@
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
             <data
-                android:host="quicktestforjohn.auth0.com"
+                android:host="emmaline.auth0.com"
                 android:pathPrefix="/android/${applicationId}/callback"
                 android:scheme="${applicationId}" />
         </intent-filter>
