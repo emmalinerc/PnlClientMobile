@@ -5,16 +5,19 @@
 // import {name as appName} from './app.json';
 
 // AppRegistry.registerComponent(appName, () => App);
+import axios from "axios";
+import APP_CONFIG from "./Config/config";
+
 
 import React, { Component } from 'react';
 import {
-  Alert,
   AppRegistry,
   Button,
   Platform,
   StyleSheet,
   Text,
-  View
+  View,
+  FlatList
 } from 'react-native';
 import Auth0 from 'react-native-auth0';
 
@@ -28,87 +31,13 @@ const auth0 = new Auth0(credentials);
     super(props);
     this.state = { 
       accessToken: null, 
-      currentUser: "",
-      locations: [],
-      doors: [],
-      favorites: [],
-      currentPage: "locations",
-      showLocations: true,
-      loggedIn: false
+      idToken: null,
+      
 
     };
-    // this.onHandleBottomNavLocationsClick = this.onHandleBottomNavLocationsClick.bind(
-    //   this
-    // );
-  
-    // this.onHandleBottomNavFavoritesClick = this.onHandleBottomNavFavoritesClick.bind(
-    //   this
-    // );
-    // this.handleBottonNavSignOutClick = this.handleBottonNavSignOutClick.bind(
-    //   this
-    // );
-    // this.getLocationsList = this.getLocationsList.bind(this);
-    // this.showDoors = this.showDoors.bind(this);
-    // this.onDoorClick = this.onDoorClick.bind(this);
-    // this.logout = this.logout.bind(this);
+    this.getLocationsList = this.getLocationsList.bind(this);
+
   }
-  
-
-
-
-// getLocationsList() {
-//   const { getIdToken } = this.props.auth;
-//   const headers = { authorization: `Bearer ${getIdToken()}` };
-
-//   axios
-//     .get(APP_CONFIG.server_base_url + "client/doors", { headers })
-//     .then(res => {
-//       console.log(res);
-//       this.setState({ locations: res.data.locations });
-//     })
-//     .catch(err => console.log(err));
-// }
-
-// componentDidMount() {
-//   this.getLocationsList();
-// }
-
-// onDoorClick(id) {
-//   const { getIdToken } = this.props.auth;
-//   const headers = { authorization: `Bearer ${getIdToken()}` };
-
-//   axios
-//     .get(APP_CONFIG.server_base_url + "client/open?Id=" + id, {
-//       headers
-//     })
-//     .then(res => console.log(res))
-//     .catch(err => console.log(err));
-// }
-
-// onHandleBottomNavLocationsClick() {
-//   this.setState({ currentPage: "locations" });
-//   this.setState({ showLocations: true });
-//   console.log(this.state.currentPage);
-// }
-
-// onHandleBottomNavFavoritesClick() {
-//   this.setState({ currentPage: "favorites" });
-//   console.log(this.state.currentPage);
-// }
-
-// handleBottonNavSignOutClick() {
-//   this.setState({ currentPage: "signout" });
-//   console.log(this.state.currentPage);
-// }
-
-// logout() {
-//   this.props.auth.logout();
-// }
-
-// showDoors() {
-//   this.setState({ showLocations: false });
-// }
-
 
   _onLogin = () => {
 
@@ -119,8 +48,8 @@ const auth0 = new Auth0(credentials);
       })
       
       .then(credentials => {
-        this.setState({ accessToken: credentials.accessToken });
-        console.log("authorized")
+        this.setState({ accessToken: credentials.accessToken, idToken: credentials.idToken }, this.getLocationsList);
+        console.log("creds", credentials)
       })
   };
 
@@ -137,6 +66,20 @@ const auth0 = new Auth0(credentials);
     }
   };
 
+  getLocationsList() {
+    const headers = { authorization: `Bearer ${this.state.idToken}` };
+
+    axios
+      .get("http://localhost:5000/api/client/doors", { headers })
+      .then(res => {
+        console.log(res);
+        this.setState({ locations: res.data.locations });
+        console.log("Locations: " + this.state.locations)
+      })
+      .catch(err => console.log(err));
+  }
+  
+
   render() {
     let loggedIn = this.state.accessToken === null ? false : true;
     return (
@@ -148,6 +91,10 @@ const auth0 = new Auth0(credentials);
         <Button
           onPress={loggedIn ? this._onLogout : this._onLogin}
           title={loggedIn ? 'Log Out' : 'Log In'}
+        />
+        <Button
+          onPress={this.getLocationsList}
+          title={'Get Locations'}
         />
       </View>
     );
