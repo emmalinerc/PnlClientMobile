@@ -32,6 +32,7 @@ const auth0 = new Auth0(credentials);
     this.state = { 
       accessToken: null, 
       idToken: null,
+      locations: [],
       
 
     };
@@ -92,10 +93,15 @@ const auth0 = new Auth0(credentials);
           onPress={loggedIn ? this._onLogout : this._onLogin}
           title={loggedIn ? 'Log Out' : 'Log In'}
         />
-        <Button
-          onPress={this.getLocationsList}
-          title={'Get Locations'}
-        />
+        <View>
+          {this.state.locations.map((location, index) => {
+            return (
+              <View key={location.ID}>
+                <Text>{location.Name}</Text>
+              </View>
+                 );
+            })}
+          </View>
       </View>
     );
   }
